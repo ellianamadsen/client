@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import axios from 'axios';
+import { saveAs } from 'file-saver';
+
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    name: '',
+    description: '',
+  }
+
+
+  handleChange = ({ target: { value, name }}) => this.setState({ [name]: value })
+
+  createAndDownloadPdf = () => {
+    axios.post('/create-pdf', this.state)
+      .then(() => axios.get('fetch-pdf', { responseType: 'blob' }))
+      .then((res) => {
+        const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+      saveAs(pdfBlob, 'WO.pdf');
+      })
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <div className="main">
+        <p className="sign" align="center">Make A New Work Order</p>
+        <textarea className="un " type="text" placeholder="Work Order Information" name="wo" id="wo" onChange={this.handleChange}/>
+        <textarea className="pass" type="text" placeholder="Description" name="description" onChange={this.handleChange}/>
+        <button className="submit" onClick={this.createAndDownloadPdf}>Download PDF</button>
+         
+
+       </div>
+      </div>
+    );
+  }
 }
 
 export default App;
